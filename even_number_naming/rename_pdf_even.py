@@ -1,0 +1,57 @@
+import os
+import glob
+
+def rename_pdf_files(folder_path, number=1):
+    # 计算起始数字（文件数量的两倍）
+    start_number = number * 2
+    # 确保文件夹路径存在
+    if not os.path.exists(folder_path):
+        print(f"文件夹 {folder_path} 不存在")
+        return
+
+    # 确保起始数字是偶数
+    start_number = start_number if start_number % 2 == 0 else start_number - 1
+
+    # 获取文件夹中所有的PDF文件
+    pdf_files = glob.glob(os.path.join(folder_path, "*.pdf"))
+    
+    if not pdf_files:
+        print("没有找到PDF文件")
+        return
+
+    # 对文件进行排序
+    pdf_files.sort()
+
+    # 从起始数字开始的计数器
+    counter = start_number
+
+    for pdf_file in pdf_files:
+        # 如果计数器小于0，停止重命名
+        if counter < 0:
+            print("已达到最小数字0，停止重命名")
+            break
+
+        # 生成新的文件名（使用递减的偶数）
+        new_name = f"Scan{counter:03d}.pdf"
+        new_path = os.path.join(folder_path, new_name)
+
+        # 如果目标文件已存在，跳过重命名
+        if os.path.exists(new_path) and pdf_file != new_path:
+            print(f"文件 {new_name} 已存在，跳过重命名")
+            counter -= 2
+            continue
+
+        try:
+            # 重命名文件
+            os.rename(pdf_file, new_path)
+            print(f"已将 {os.path.basename(pdf_file)} 重命名为 {new_name}")
+        except Exception as e:
+            print(f"重命名 {pdf_file} 时出错: {str(e)}")
+
+        # 减少计数器（确保是偶数）
+        counter -= 2
+
+if __name__ == "__main__":
+    # 获取当前脚本所在的文件夹路径
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    rename_pdf_files(current_folder)
